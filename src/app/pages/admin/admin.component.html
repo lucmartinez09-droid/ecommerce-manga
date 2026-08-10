@@ -1,0 +1,99 @@
+<section class="admin-page">
+  <header class="admin-header">
+    <h1>Painel Administrativo</h1>
+    <a matButton="elevated" routerLink="/admin/products/new">
+      <mat-icon fontIcon="add"></mat-icon>
+      Novo produto
+    </a>
+  </header>
+
+  <section class="dashboard">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <span class="stat-value">R$ {{ saleService.receitaTotal().toFixed(2) }}</span>
+        <span class="stat-label">Receita total</span>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <span class="stat-value">{{ saleService.totalProdutosVendidos() }}</span>
+        <span class="stat-label">Produtos vendidos</span>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <span class="stat-value">{{ saleService.produtoMaisVendido() ?? '—' }}</span>
+        <span class="stat-label">Mais vendido</span>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <div class="table-container">
+    <table mat-table [dataSource]="productService.todos()" class="admin-table">
+      <ng-container matColumnDef="produto">
+        <th mat-header-cell *matHeaderCellDef>Produto</th>
+        <td mat-cell *matCellDef="let p">
+          <img class="thumb" [src]="p.image" alt="" />
+          <span>{{ p.name }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="categoria">
+        <th mat-header-cell *matHeaderCellDef>Categoria</th>
+        <td mat-cell *matCellDef="let p">{{ p.category }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="preco">
+        <th mat-header-cell *matHeaderCellDef>Preço</th>
+        <td mat-cell *matCellDef="let p">
+          @if (p.promotion) {
+            <span class="old-price">R$ {{ p.price.toFixed(2) }}</span>
+          }
+          R$ {{ precoFinal(p).toFixed(2) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="estoque">
+        <th mat-header-cell *matHeaderCellDef>Estoque</th>
+        <td mat-cell *matCellDef="let p">{{ p.stock }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let p">
+          <span class="status-chip" [class.on]="!p.hidden">{{
+            p.hidden ? 'Oculto' : 'Visível'
+          }}</span>
+          @if (p.promotion) {
+            <span class="status-chip promo">Promoção</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef>Ações</th>
+        <td mat-cell *matCellDef="let p">
+          <a matIconButton [routerLink]="['/admin/products', p.id, 'edit']" aria-label="Editar">
+            <mat-icon fontIcon="edit"></mat-icon>
+          </a>
+          <button matIconButton (click)="aoAlternarPromocao(p)" aria-label="Alternar promoção">
+            <mat-icon fontIcon="local_offer"></mat-icon>
+          </button>
+          <button
+            matIconButton
+            (click)="aoAlternarVisibilidade(p)"
+            aria-label="Alternar visibilidade"
+          >
+            <mat-icon [fontIcon]="p.hidden ? 'visibility_off' : 'visibility'"></mat-icon>
+          </button>
+          <button matIconButton class="danger" (click)="aoDeletar(p)" aria-label="Excluir">
+            <mat-icon fontIcon="delete"></mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+</section>

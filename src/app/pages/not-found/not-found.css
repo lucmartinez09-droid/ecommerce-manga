@@ -1,0 +1,14 @@
+.not-found {
+  padding: 80px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.not-found h1 {
+  font-size: 5rem;
+  font-weight: 800;
+  margin: 0;
+}

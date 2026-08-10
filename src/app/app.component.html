@@ -1,0 +1,49 @@
+<mat-sidenav-container class="layout">
+  <mat-sidenav mode="over" position="end" class="cart-sidenav" [opened]="carrinhoAberto()">
+    <app-cart (fechar)="carrinhoAberto.set(false)" />
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="toolbar">
+      <a class="brand" routerLink="/">
+        <mat-icon fontIcon="auto_stories" class="brand-icon"></mat-icon>
+        <div class="brand-text">
+          <span class="brand-title">Shogun Livraria</span>
+          <span class="brand-subtitle">E-commerce de Mangás</span>
+        </div>
+      </a>
+
+      <span class="toolbar-spacer"></span>
+
+      <div class="admin-links">
+        <a matButton="elevated" class="register-link" routerLink="/admin/products/new">
+          <mat-icon fontIcon="add"></mat-icon>
+          Cadastrar
+        </a>
+
+        <a matIconButton routerLink="/admin" aria-label="Painel administrativo">
+          <mat-icon fontIcon="admin_panel_settings"></mat-icon>
+        </a>
+      </div>
+
+      <div class="cart-area">
+        <button
+          matIconButton
+          class="cart-button"
+          (click)="carrinhoAberto.set(true)"
+          aria-label="Abrir carrinho"
+        >
+          <mat-icon fontIcon="shopping_cart"></mat-icon>
+        </button>
+
+        <span class="cart-count-chip">{{ cartService.quantidadeTotal() }}</span>
+        <span class="cart-divider"></span>
+        <span class="cart-total">R$ {{ cartService.totalCarrinho().toFixed(2) }}</span>
+      </div>
+    </mat-toolbar>
+
+    <main class="container">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

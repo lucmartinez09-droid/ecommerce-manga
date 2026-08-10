@@ -1,0 +1,68 @@
+<div class="cart-container">
+  <header class="cart-header">
+    <h2>Seu carrinho</h2>
+    <button matIconButton (click)="fechar.emit()" aria-label="Fechar carrinho">
+      <mat-icon fontIcon="close"></mat-icon>
+    </button>
+  </header>
+
+  @if (cartService.itens().length > 0) {
+    <ul class="cart-list">
+      @for (item of cartService.itens(); track item.product.id) {
+        <li class="cart-item">
+          <img
+            class="cart-thumb"
+            [src]="item.product.image"
+            [alt]="'Capa do mangá ' + item.product.name"
+          />
+
+          <div class="cart-info">
+            <span class="cart-name">{{ item.product.name }}</span>
+            <span class="cart-price">R$ {{ item.product.price.toFixed(2) }}</span>
+
+            <div class="qty-controls">
+              <button matIconButton (click)="aoDiminuir(item)" aria-label="Diminuir quantidade">
+                <mat-icon fontIcon="remove"></mat-icon>
+              </button>
+              <span class="qty">{{ item.quantity }}</span>
+              <button matIconButton (click)="aoAumentar(item)" aria-label="Aumentar quantidade">
+                <mat-icon fontIcon="add"></mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <button
+            matIconButton
+            class="remove-btn"
+            (click)="aoRemover(item)"
+            aria-label="Remover item"
+          >
+            <mat-icon fontIcon="delete"></mat-icon>
+          </button>
+        </li>
+      }
+    </ul>
+
+    <footer class="cart-footer">
+      <p class="totals-line">Subtotal: R$ {{ cartService.totalBruto().toFixed(2) }}</p>
+      <p class="totals-line discount">
+        Descontos: − R$ {{ cartService.totalDescontos().toFixed(2) }}
+      </p>
+      <p class="cart-total">
+        Total: <strong>R$ {{ cartService.totalCarrinho().toFixed(2) }}</strong>
+      </p>
+
+      <div class="cart-actions">
+        <button matButton="elevated" color="warn" (click)="aoLimpar()">Limpar</button>
+        <a matButton="elevated" routerLink="/checkout" (click)="fechar.emit()">
+          Finalizar compra
+        </a>
+      </div>
+    </footer>
+  } @else {
+    <div class="cart-empty">
+      <mat-icon fontIcon="shopping_cart"></mat-icon>
+      <p>Seu carrinho está vazio</p>
+    </div>
+  }
+</div>

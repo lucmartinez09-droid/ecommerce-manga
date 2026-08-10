@@ -1,0 +1,47 @@
+<section class="shop-section">
+  <header class="shop-header">
+    <span class="hanko" aria-hidden="true">漫</span>
+    <div class="shop-header-text">
+      <h2 class="shop-title">Catálogo de Mangás</h2>
+      <p class="shop-subtitle">Tankōbon • Edições oficiais</p>
+    </div>
+  </header>
+
+  <div class="filters">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Procurar mangás:</mat-label>
+      <mat-icon matIconPrefix fontIcon="search"></mat-icon>
+      <input
+        matInput
+        [ngModel]="pesquisaDigitada()"
+        (ngModelChange)="pesquisaDigitada.set($event)"
+        placeholder="Ex.: Naruto, Bleach, One Piece..."
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="sort-field">
+      <mat-label>Ordenar por:</mat-label>
+      <mat-select [value]="ordenacao()" (selectionChange)="ordenacao.set($event.value)">
+        <mat-option value="relevancia">Relevância</mat-option>
+        <mat-option value="menor-preco">Menor preço</mat-option>
+        <mat-option value="maior-preco">Maior preço</mat-option>
+        <mat-option value="avaliacao">Melhor avaliação</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="products-grid">
+    @for (product of produtosFiltrados(); track product.id) {
+      <app-product-card
+        [product]="product"
+        (adicionarAoCarrinho)="aoAdicionarCarrinho($event)"
+        (notificarEsgotado)="aoNotificarEsgotado($event)"
+      />
+    } @empty {
+      <div class="empty-state">
+        <mat-icon aria-hidden="true" fontIcon="inventory_2"></mat-icon>
+        <p>Nenhum mangá encontrado de acordo com a pesquisa</p>
+      </div>
+    }
+  </div>
+</section>

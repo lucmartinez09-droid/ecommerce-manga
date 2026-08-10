@@ -1,0 +1,96 @@
+<section class="checkout-page">
+  <a class="back-link" routerLink="/">
+    <mat-icon fontIcon="arrow_back"></mat-icon>
+    Voltar para a loja
+  </a>
+
+  <h1 class="form-title">Finalizar Compra</h1>
+
+  @if (cartService.itens().length > 0) {
+    <div class="checkout-layout">
+      <form class="checkout-form" [formGroup]="checkoutForm">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nome completo</mat-label>
+          <input matInput formControlName="name" />
+          @if (checkoutForm.controls.name.hasError('required')) {
+            <mat-error>Campo obrigatório.</mat-error>
+          }
+          @if (checkoutForm.controls.name.hasError('minlength')) {
+            <mat-error>Mínimo de 3 caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>CPF (somente números)</mat-label>
+          <input matInput formControlName="cpf" placeholder="00000000000" />
+          @if (checkoutForm.controls.cpf.hasError('required')) {
+            <mat-error>Campo obrigatório.</mat-error>
+          }
+          @if (checkoutForm.controls.cpf.hasError('pattern')) {
+            <mat-error>Informe os 11 dígitos do CPF.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>E-mail</mat-label>
+          <input matInput type="email" formControlName="email" />
+          @if (checkoutForm.controls.email.hasError('required')) {
+            <mat-error>Campo obrigatório.</mat-error>
+          }
+          @if (checkoutForm.controls.email.hasError('email')) {
+            <mat-error>E-mail inválido.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Endereço completo</mat-label>
+          <textarea matInput formControlName="address" rows="2"></textarea>
+          @if (checkoutForm.controls.address.hasError('required')) {
+            <mat-error>Campo obrigatório.</mat-error>
+          }
+          @if (checkoutForm.controls.address.hasError('minlength')) {
+            <mat-error>Endereço incompleto (mínimo de 10 caracteres).</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Método de pagamento</mat-label>
+          <mat-select formControlName="payment">
+            <mat-option value="pix">Pix</mat-option>
+            <mat-option value="credito">Cartão de crédito</mat-option>
+            <mat-option value="boleto">Boleto</mat-option>
+          </mat-select>
+          @if (checkoutForm.controls.payment.hasError('required')) {
+            <mat-error>Selecione um método de pagamento.</mat-error>
+          }
+        </mat-form-field>
+
+        <button matButton="elevated" [disabled]="checkoutForm.invalid" (click)="finalizarCompra()">
+          Confirmar compra
+        </button>
+      </form>
+
+      <aside class="summary">
+        <h2>Resumo do pedido</h2>
+        <ul>
+          @for (item of cartService.itens(); track item.product.id) {
+            <li>{{ item.quantity }}x {{ item.product.name }}</li>
+          }
+        </ul>
+        <p class="totals-line">Subtotal: R$ {{ cartService.totalBruto().toFixed(2) }}</p>
+        <p class="totals-line discount">
+          Descontos: − R$ {{ cartService.totalDescontos().toFixed(2) }}
+        </p>
+        <p class="cart-total">
+          Total: <strong>R$ {{ cartService.totalCarrinho().toFixed(2) }}</strong>
+        </p>
+      </aside>
+    </div>
+  } @else {
+    <div class="cart-empty">
+      <mat-icon fontIcon="shopping_cart"></mat-icon>
+      <p>Seu carrinho está vazio.</p>
+      <a routerLink="/" matButton="elevated">Ver mangás</a>
+    </div>
+  }
+</section>

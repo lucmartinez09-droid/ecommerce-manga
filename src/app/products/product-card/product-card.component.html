@@ -1,0 +1,57 @@
+<mat-card class="product-card" [class.low-stock]="estoqueBaixo()">
+  <a class="cover-wrapper" [routerLink]="['/products', product().id]">
+    <img class="product-image" [src]="product().image" [alt]="'Capa do mangá ' + product().name" />
+
+    @if (product().stock === 0) {
+      <span class="flag out">Esgotado</span>
+    } @else if (estoqueBaixo()) {
+      <span class="flag low">Últimas unidades</span>
+    }
+
+    @if (product().promotion) {
+      <span class="flag promo">Promoção −20%</span>
+    }
+  </a>
+
+  <mat-card-header class="card-header">
+    <mat-card-title class="card-title">
+      <a class="title-link" [routerLink]="['/products', product().id]">
+        {{ product().name }}
+      </a>
+    </mat-card-title>
+    <mat-card-subtitle class="card-subtitle">{{ product().description }}</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content class="card-content">
+    <div class="price-row">
+      <span class="price">
+        @if (product().promotion) {
+          <span class="old-price">R$ {{ product().price.toFixed(2) }}</span>
+        }
+        R$ {{ precoFinal().toFixed(2) }}
+      </span>
+
+      @if (product().stock > 0) {
+        <span class="chip available" [class.warn]="estoqueBaixo()">
+          {{ product().stock }} em estoque
+        </span>
+      } @else {
+        <span class="chip out">Sem estoque</span>
+      }
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions class="card-actions">
+    @if (product().stock > 0) {
+      <button matButton="elevated" (click)="adicionarAoCarrinho.emit(product())">
+        <mat-icon fontIcon="add_shopping_cart"></mat-icon>
+        Adicionar ao carrinho
+      </button>
+    } @else {
+      <button matButton="elevated" class="notify" (click)="notificarEsgotado.emit(product())">
+        <mat-icon fontIcon="notifications_active"></mat-icon>
+        Me avise quando chegar
+      </button>
+    }
+  </mat-card-actions>
+</mat-card>

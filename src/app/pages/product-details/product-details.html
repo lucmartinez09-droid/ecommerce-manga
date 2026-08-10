@@ -1,0 +1,50 @@
+@if (product(); as p) {
+  <section class="details">
+    <a class="back-link" routerLink="/">
+      <mat-icon fontIcon="arrow_back"></mat-icon>
+      Voltar para a loja
+    </a>
+
+    <div class="details-layout">
+      <div class="details-cover">
+        <img [src]="p.image" [alt]="'Capa do mangá ' + p.name" />
+      </div>
+
+      <div class="details-info">
+        <h1 class="details-title">{{ p.name }}</h1>
+        <p class="details-id">
+          ID: {{ p.id }} • Categoria: {{ p.category }} • ★ {{ p.rating.toFixed(1) }}
+        </p>
+        <p class="details-description">{{ p.description }}</p>
+
+        <p class="details-price">
+          @if (p.promotion) {
+            <span class="old-price">R$ {{ p.price.toFixed(2) }}</span>
+          }
+          R$ {{ precoFinal().toFixed(2) }}
+        </p>
+
+        @if (p.stock > 0) {
+          <p class="stock available" [class.low]="p.stock <= 5">
+            {{ p.stock <= 5 ? 'Restam apenas ' + p.stock + ' unidades' : p.stock + ' em estoque' }}
+          </p>
+          <button matButton="elevated" (click)="aoAdicionarCarrinho()">
+            <mat-icon fontIcon="add_shopping_cart"></mat-icon>
+            Adicionar ao carrinho
+          </button>
+        } @else {
+          <p class="stock out">Esgotado</p>
+          <button matButton="elevated" class="notify" (click)="aoNotificar()">
+            <mat-icon fontIcon="notifications_active"></mat-icon>
+            Me avise quando chegar
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+} @else {
+  <div class="product-not-found">
+    <h2>Produto não encontrado.</h2>
+    <a routerLink="/" matButton="elevated">Voltar para a loja</a>
+  </div>
+}

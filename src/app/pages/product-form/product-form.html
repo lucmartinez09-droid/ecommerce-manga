@@ -1,0 +1,84 @@
+<section class="form-page">
+  <a class="back-link" routerLink="/">
+    <mat-icon fontIcon="arrow_back"></mat-icon>
+    Voltar para a loja
+  </a>
+
+  <h1 class="form-title">{{ editMode ? 'Editar Produto' : 'Cadastro de Produto' }}</h1>
+
+  <form class="product-form" [formGroup]="productForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" placeholder="Ex.: Naruto" />
+      @if (productForm.controls.name.hasError('required')) {
+        <mat-error>Campo obrigatório.</mat-error>
+      }
+      @if (productForm.controls.name.hasError('minlength')) {
+        <mat-error>O nome precisa de pelo menos 3 caracteres.</mat-error>
+      }
+      @if (productForm.controls.name.hasError('maxlength')) {
+        <mat-error>O nome pode ter no máximo 60 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descrição</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        rows="4"
+        placeholder="Descreva o mangá..."
+      ></textarea>
+      @if (productForm.controls.description.hasError('required')) {
+        <mat-error>Campo obrigatório.</mat-error>
+      }
+      @if (productForm.controls.description.hasError('minlength')) {
+        <mat-error>A descrição precisa de pelo menos 20 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Categoria</mat-label>
+      <input matInput formControlName="category" placeholder="Ex.: Shonen, Seinen..." />
+      @if (productForm.controls.category.hasError('required')) {
+        <mat-error>Campo obrigatório.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Preço</mat-label>
+        <input matInput type="number" formControlName="price" />
+        @if (productForm.controls.price.hasError('required')) {
+          <mat-error>Campo obrigatório.</mat-error>
+        }
+        @if (productForm.controls.price.hasError('min')) {
+          <mat-error>O preço deve ser maior que zero.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Quantidade</mat-label>
+        <input matInput type="number" formControlName="quantity" />
+        @if (productForm.controls.quantity.hasError('required')) {
+          <mat-error>Campo obrigatório.</mat-error>
+        }
+        @if (productForm.controls.quantity.hasError('min')) {
+          <mat-error>A quantidade não pode ser negativa.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>URL da imagem</mat-label>
+        <input matInput formControlName="image" placeholder="images/novo-manga.png" />
+        @if (productForm.controls.image.hasError('required')) {
+          <mat-error>Campo obrigatório.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <button matButton="elevated" [disabled]="productForm.invalid" (click)="saveProduct()">
+      Salvar
+    </button>
+  </form>
+</section>
