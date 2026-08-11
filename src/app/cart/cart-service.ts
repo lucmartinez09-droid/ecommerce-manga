@@ -28,24 +28,27 @@ export class CartService {
 
   readonly totalCarrinho = computed(() => this.totalBruto() - this.totalDescontos());
 
-  /** Retorna false se tentar comprar acima do estoque. */
   adicionar(product: Product): boolean {
-    const item = this.encontrar(product.id);
-    if ((item?.quantity ?? 0) + 1 > product.stock) return false;
+    if (this.estoqueAtual(product) <= 0) return false;
 
+    const item = this.encontrar(product.id);
     if (item) {
       this.atualizarQuantidade(product.id, 1);
     } else {
       this.itensCarrinho.update((itens) => [...itens, { product, quantity: 1 }]);
     }
+
     this.productService.diminuirEstoque(product.id, 1);
     this.save();
     return true;
   }
 
   aumentar(product: Product): boolean {
+    if (this.estoqueAtual(product) <= 0) return false;
+
     const item = this.encontrar(product.id);
-    if (!item || item.quantity + 1 > product.stock) return false;
+    if (!item) return false;
+
     this.atualizarQuantidade(product.id, 1);
     this.productService.diminuirEstoque(product.id, 1);
     this.save();
@@ -55,6 +58,7 @@ export class CartService {
   diminuir(product: Product): void {
     const item = this.encontrar(product.id);
     if (!item || item.quantity <= 1) return;
+
     this.atualizarQuantidade(product.id, -1);
     this.productService.devolverEstoque(product.id, 1);
     this.save();
@@ -63,12 +67,12 @@ export class CartService {
   remover(productId: number): void {
     const item = this.encontrar(productId);
     if (!item) return;
+
     this.productService.devolverEstoque(productId, item.quantity);
     this.itensCarrinho.update((itens) => itens.filter((i) => i.product.id !== productId));
     this.save();
   }
 
-  /** Limpa devolvendo o estoque (botão "Limpar"). */
   limpar(): void {
     for (const item of this.itensCarrinho()) {
       this.productService.devolverEstoque(item.product.id, item.quantity);
@@ -77,10 +81,14 @@ export class CartService {
     this.save();
   }
 
-  /** Limpa SEM devolver estoque (após a compra ser concluída). */
   finalizar(): void {
     this.itensCarrinho.set([]);
     this.save();
+  }
+
+  /** Consulta o estoque REAL no ProductService (a "foto" do carrinho pode estar antiga). */
+  private estoqueAtual(product: Product): number {
+    return this.productService.buscarPorId(product.id)?.stock ?? product.stock;
   }
 
   private encontrar(id: number): CartItem | undefined {
