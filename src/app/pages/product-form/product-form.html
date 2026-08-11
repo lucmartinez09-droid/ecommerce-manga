@@ -67,14 +67,17 @@
           <mat-error>A quantidade não pode ser negativa.</mat-error>
         }
       </mat-form-field>
+    </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>URL da imagem</mat-label>
-        <input matInput formControlName="image" placeholder="images/novo-manga.png" />
-        @if (productForm.controls.image.hasError('required')) {
-          <mat-error>Campo obrigatório.</mat-error>
-        }
-      </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>URL da imagem (opcional)</mat-label>
+      <input matInput formControlName="image" placeholder="images/novo-manga.png" />
+      <mat-hint>Se deixar vazio, usaremos a capa oficial da Shogun Livraria.</mat-hint>
+    </mat-form-field>
+
+    <div class="image-preview">
+      <img [src]="imagemPreview()" alt="Pré-visualização da capa do mangá" />
+      <span class="preview-label">Pré-visualização da capa</span>
     </div>
 
     <button matButton="elevated" [disabled]="productForm.invalid" (click)="saveProduct()">

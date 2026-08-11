@@ -1,6 +1,6 @@
 <div class="cart-container">
   <header class="cart-header">
-    <h2>Seu carrinho</h2>
+    <h2>Seu carrinho ({{ cartService.quantidadeTotal() }})</h2>
     <button matIconButton (click)="fechar.emit()" aria-label="Fechar carrinho">
       <mat-icon fontIcon="close"></mat-icon>
     </button>

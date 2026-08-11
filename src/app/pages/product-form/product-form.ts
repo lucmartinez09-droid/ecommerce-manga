@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ProductService } from '../../products/product-service';
+
+const IMAGEM_PADRAO = 'images/shogun livraria.png';
 
 @Component({
   selector: 'app-product-form',
@@ -48,12 +50,26 @@ export class ProductFormComponent {
     category: [this.productEdit?.category ?? '', [Validators.required]],
     price: [this.productEdit?.price ?? 0, [Validators.required, Validators.min(1)]],
     quantity: [this.productEdit?.stock ?? 0, [Validators.required, Validators.min(0)]],
-    image: [this.productEdit?.image ?? '', [Validators.required]],
+    // 👇 agora é OPCIONAL (sem Validators.required)
+    image: [this.productEdit?.image ?? ''],
   });
+
+  /** Capa que será usada: URL digitada ou a arte oficial da Shogun */
+  protected readonly imagemPreview = signal(
+    (this.productEdit?.image ?? '').trim() || IMAGEM_PADRAO,
+  );
+
+  constructor() {
+    this.productForm.controls.image.valueChanges.subscribe((value) => {
+      this.imagemPreview.set((value ?? '').trim() || IMAGEM_PADRAO);
+    });
+  }
 
   protected saveProduct(): void {
     if (this.productForm.invalid) return;
+
     const value = this.productForm.value;
+    const imagem = (value.image ?? '').trim() || IMAGEM_PADRAO;
 
     if (this.productEdit) {
       this.productService.atualizar({
@@ -63,7 +79,7 @@ export class ProductFormComponent {
         category: value.category!,
         price: value.price!,
         stock: value.quantity!,
-        image: value.image!,
+        image: imagem,
       });
       this.snackBar.open('Produto atualizado com sucesso!', 'Fechar', { duration: 3000 });
     } else {
@@ -73,7 +89,7 @@ export class ProductFormComponent {
         category: value.category!,
         price: value.price!,
         stock: value.quantity!,
-        image: value.image!,
+        image: imagem,
         rating: 0,
         hidden: false,
         promotion: false,

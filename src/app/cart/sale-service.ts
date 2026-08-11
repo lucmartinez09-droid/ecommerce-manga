@@ -1,60 +1,125 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { Sale } from './sale';
-import { CartItem } from '../cart/cart-item';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { CartItem } from './cart-item';
+import { Product, precoComDesconto } from '../products/product';
+import { ProductService } from '../products/product-service';
 
 @Injectable({ providedIn: 'root' })
-export class SaleService {
-  private readonly storageKey = 'shogun-sales';
-  private readonly vendas = signal<Sale[]>(this.load());
+export class CartService {
+  private readonly productService = inject(ProductService);
+  private readonly storageKey = 'shogun-cart';
+  private readonly itensCarrinho = signal<CartItem[]>(this.load());
 
-  readonly todas = computed(() => this.vendas());
+  readonly itens = computed(() => this.itensCarrinho());
 
-  readonly receitaTotal = computed(() =>
-    this.vendas().reduce((soma, venda) => soma + venda.total, 0),
+  readonly quantidadeTotal = computed(() =>
+    this.itensCarrinho().reduce((soma, item) => soma + item.quantity, 0),
   );
 
-  readonly totalProdutosVendidos = computed(() =>
-    this.vendas().reduce(
-      (soma, venda) => soma + venda.items.reduce((acc, item) => acc + item.quantity, 0),
+  readonly totalBruto = computed(() =>
+    this.itensCarrinho().reduce((soma, item) => soma + item.product.price * item.quantity, 0),
+  );
+
+  readonly totalDescontos = computed(() =>
+    this.itensCarrinho().reduce(
+      (soma, item) => soma + (item.product.price - precoComDesconto(item.product)) * item.quantity,
       0,
     ),
   );
 
-  readonly produtoMaisVendido = computed(() => {
-    const porNome = new Map<string, number>();
-    for (const venda of this.vendas()) {
-      for (const item of venda.items) {
-        porNome.set(item.product.name, (porNome.get(item.product.name) ?? 0) + item.quantity);
-      }
-    }
-    let nome: string | null = null;
-    let recorde = 0;
-    porNome.forEach((quantidade, n) => {
-      if (quantidade > recorde) {
-        recorde = quantidade;
-        nome = n;
-      }
-    });
-    return nome;
-  });
+  readonly totalCarrinho = computed(() => this.totalBruto() - this.totalDescontos());
 
-  registrarVenda(dados: { customerName: string; items: CartItem[]; total: number }): void {
-    const venda: Sale = {
-      id: this.vendas().length + 1,
-      date: new Date().toISOString(),
-      ...dados,
-    };
-    this.vendas.update((vendas) => [...vendas, venda]);
-    localStorage.setItem(this.storageKey, JSON.stringify(this.vendas()));
+  /** Adiciona 1 unidade. Só bloqueia quando o estoque restante chega a 0. */
+  adicionar(product: Product): boolean {
+    if (this.estoqueAtual(product) <= 0) return false;
+
+    const item = this.encontrar(product.id);
+    if (item) {
+      this.atualizarQuantidade(product.id, 1);
+    } else {
+      this.itensCarrinho.update((itens) => [...itens, { product, quantity: 1 }]);
+    }
+
+    this.productService.diminuirEstoque(product.id, 1);
+    this.save();
+    return true;
   }
 
-  private load(): Sale[] {
+  /** Botão "+" do carrinho: também lê o estoque vivo antes de deixar aumentar. */
+  aumentar(product: Product): boolean {
+    if (this.estoqueAtual(product) <= 0) return false;
+
+    const item = this.encontrar(product.id);
+    if (!item) return false;
+
+    this.atualizarQuantidade(product.id, 1);
+    this.productService.diminuirEstoque(product.id, 1);
+    this.save();
+    return true;
+  }
+
+  diminuir(product: Product): void {
+    const item = this.encontrar(product.id);
+    if (!item || item.quantity <= 1) return;
+
+    this.atualizarQuantidade(product.id, -1);
+    this.productService.devolverEstoque(product.id, 1);
+    this.save();
+  }
+
+  remover(productId: number): void {
+    const item = this.encontrar(productId);
+    if (!item) return;
+
+    this.productService.devolverEstoque(productId, item.quantity);
+    this.itensCarrinho.update((itens) => itens.filter((i) => i.product.id !== productId));
+    this.save();
+  }
+
+  /** Limpa devolvendo o estoque (botão "Limpar"). */
+  limpar(): void {
+    for (const item of this.itensCarrinho()) {
+      this.productService.devolverEstoque(item.product.id, item.quantity);
+    }
+    this.itensCarrinho.set([]);
+    this.save();
+  }
+
+  /** Limpa SEM devolver estoque (após a compra ser concluída no checkout). */
+  finalizar(): void {
+    this.itensCarrinho.set([]);
+    this.save();
+  }
+
+  /**
+   * O produto salvo no carrinho pode ser uma "foto" antiga.
+   * Por isso consultamos o estoque REAL no ProductService,
+   * usando o valor recebido apenas como reserva (ex.: testes).
+   */
+  private estoqueAtual(product: Product): number {
+    return this.productService.buscarPorId(product.id)?.stock ?? product.stock;
+  }
+
+  private encontrar(id: number): CartItem | undefined {
+    return this.itensCarrinho().find((i) => i.product.id === id);
+  }
+
+  private atualizarQuantidade(id: number, delta: number): void {
+    this.itensCarrinho.update((itens) =>
+      itens.map((i) => (i.product.id === id ? { ...i, quantity: i.quantity + delta } : i)),
+    );
+  }
+
+  private load(): CartItem[] {
     try {
       const salvo = localStorage.getItem(this.storageKey);
-      if (salvo) return JSON.parse(salvo) as Sale[];
+      if (salvo) return JSON.parse(salvo) as CartItem[];
     } catch {
       /* primeiro acesso */
     }
     return [];
+  }
+
+  private save(): void {
+    localStorage.setItem(this.storageKey, JSON.stringify(this.itensCarrinho()));
   }
 }

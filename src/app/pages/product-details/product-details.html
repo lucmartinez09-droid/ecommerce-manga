@@ -12,9 +12,10 @@
 
       <div class="details-info">
         <h1 class="details-title">{{ p.name }}</h1>
-        <p class="details-id">
-          ID: {{ p.id }} • Categoria: {{ p.category }} • ★ {{ p.rating.toFixed(1) }}
-        </p>
+
+        <!-- 👇 ID removido da exibição: agora mostra só categoria e avaliação -->
+        <p class="details-id">Categoria: {{ p.category }} • ★ {{ p.rating.toFixed(1) }}</p>
+
         <p class="details-description">{{ p.description }}</p>
 
         <p class="details-price">
