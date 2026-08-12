@@ -12,3 +12,5 @@ Foram utilizados:
 - Dependency Injection
 - Interfaces
 - Angular Material
+
+O site para acessar: https://shogun-livraria.netlify.app
