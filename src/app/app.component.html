@@ -1,5 +1,11 @@
 <mat-sidenav-container class="layout">
-  <mat-sidenav mode="over" position="end" class="cart-sidenav" [opened]="carrinhoAberto()">
+  <mat-sidenav
+    mode="over"
+    position="end"
+    class="cart-sidenav"
+    [opened]="carrinhoAberto()"
+    (closed)="carrinhoAberto.set(false)"
+  >
     <app-cart (fechar)="carrinhoAberto.set(false)" />
   </mat-sidenav>
 
