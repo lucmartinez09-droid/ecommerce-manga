@@ -13,7 +13,6 @@ export interface Sale {
   providedIn: 'root',
 })
 export class SaleService {
-  // 👈 o "export" aqui é o que resolve o TS2305
   private readonly storageKey = 'shogun-sales';
   private readonly vendas = signal<Sale[]>(this.load());
 
@@ -67,9 +66,7 @@ export class SaleService {
     try {
       const salvo = localStorage.getItem(this.storageKey);
       if (salvo) return JSON.parse(salvo) as Sale[];
-    } catch {
-      /* primeiro acesso */
-    }
+    } catch {}
     return [];
   }
 }

@@ -86,7 +86,6 @@ export class CartService {
     this.save();
   }
 
-  /** Consulta o estoque REAL no ProductService (a "foto" do carrinho pode estar antiga). */
   private estoqueAtual(product: Product): number {
     return this.productService.buscarPorId(product.id)?.stock ?? product.stock;
   }
@@ -105,9 +104,7 @@ export class CartService {
     try {
       const salvo = localStorage.getItem(this.storageKey);
       if (salvo) return JSON.parse(salvo) as CartItem[];
-    } catch {
-      /* primeiro acesso */
-    }
+    } catch {}
     return [];
   }
 
